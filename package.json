@@ -1,0 +1,31 @@
+{
+  "name": "sobject-doc-node",
+  "version": "0.1.0",
+  "description": "Automatic documentation for Salesforce SObject files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsharrison/sobject-doc-node.git"
+  },
+  "keywords": [
+    "Salesforce",
+    "documentation",
+    "SObject"
+  ],
+  "author": "Derrek Harrison",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dsharrison/sobject-doc-node/issues"
+  },
+  "homepage": "https://github.com/dsharrison/sobject-doc-node#readme",
+  "devDependencies": {
+    "grunt-jsbeautifier": "^0.2.13",
+    "load-grunt-tasks": "^3.5.2"
+  },
+  "dependencies": {
+    "xml2js": "^0.4.17"
+  }
+}
