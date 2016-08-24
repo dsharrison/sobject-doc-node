@@ -3,16 +3,21 @@ var xmlToObj = require('xml2js').parseString;
 var parser = new Transform();
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-
-var sObjects = [];
 var config = require(getFilePath('/_util/config'));
-var dir = config.data.source;
-var currentFile;
 
 var run = function() {
+
+  var sObjects = [];
+  var dir = config.data.source;
+  console.log('Creating docs for objects in ' + dir);
+
   fs.readdir(dir, function(err, files) {
+
     if(err) throw err;
     var c = 0;
+
+    var currentFile;
+
     files.forEach(function(file) {
       if(file.indexOf('.object') != -1) {
         c++;

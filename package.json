@@ -1,6 +1,6 @@
 {
   "name": "sobject-doc-node",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Automatic documentation for Salesforce SObject files.",
   "main": "sobject-doc-node.js.js",
   "scripts": {
