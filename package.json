@@ -1,8 +1,8 @@
 {
   "name": "sobject-doc-node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatic documentation for Salesforce SObject files.",
-  "main": "index.js",
+  "main": "sobject-doc-node.js.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
