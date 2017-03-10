@@ -1,10 +1,11 @@
 {
   "name": "sobject-doc-node",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Automatic documentation for Salesforce SObject files.",
-  "main": "sobject-doc-node.js.js",
+  "main": "sobject-doc-node.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "document": "node ./run.js",
+    "test": "mocha ./test/*.js"
   },
   "repository": {
     "type": "git",
@@ -22,8 +23,12 @@
   },
   "homepage": "https://github.com/dsharrison/sobject-doc-node#readme",
   "devDependencies": {
+    "chai": "^3.5.0",
+    "grunt-contrib-jshint": "^1.1.0",
     "grunt-jsbeautifier": "^0.2.13",
-    "load-grunt-tasks": "^3.5.2"
+    "load-grunt-tasks": "^3.5.2",
+    "mocha": "^3.2.0",
+    "mock-fs": "^4.1.0"
   },
   "dependencies": {
     "xml2js": "^0.4.17"

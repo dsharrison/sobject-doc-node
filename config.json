@@ -1,4 +1,4 @@
 {
-  "source": "_test/data/",
-  "target": "./doc-data/"
+  "source": "test/data/",
+  "target": "./docs/"
 }

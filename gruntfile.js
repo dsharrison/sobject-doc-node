@@ -6,7 +6,7 @@ module.exports = grunt => {
 
   grunt.initConfig({
     jsbeautifier: {
-      files: ["*.js", "_util/*.js"],
+      files: ["*.js", "util/*.js", "test/*.js"],
       options: {
         js: {
           braceStyle: "end-expand",
@@ -29,7 +29,14 @@ module.exports = grunt => {
           endWithNewline: true
         }
       }
+    },
+    jshint: {
+      files: ["*.js", "_lib/**/*.js", "_models/**/*.js", "_test/**/*.js", "_util/**/*.js"],
+      options: {
+        node: true,
+        esversion: 6
+      }
     }
   });
-  grunt.registerTask('default', ['jsbeautifier']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier']);
 };

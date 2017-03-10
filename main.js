@@ -1,13 +1,80 @@
+/**
+ * This is the main logic for the sobject-doc-node app. This will export a
+ * function named "run" that will do the actual processing.
+ */
+
+// Imports
+// =============================================================================
+
+/**
+ * Stream reader with the capability to transform inputs.
+ * @type {stream.Transform}
+ */
 var Transform = require('stream').Transform;
+
+/**
+ * XML transformer to convert XML to JSON.
+ * @type {[type]}
+ */
 var xmlToObj = require('xml2js').parseString;
-var parser = new Transform();
+
+/**
+ * Node filesystem manager.
+ * @type {fs}
+ */
 var fs = require('fs');
+
+/**
+ * Recursive file directory creation
+ * @type {mkdirp}
+ */
 var mkdirp = require('mkdirp');
-var config = require(getFilePath('/_util/config'));
 
-var run = function() {
+/**
+ * Configuration options read in from the config.json file.
+ * @type {Object}
+ */
+var config = require(getFilePath('/util/config'));
 
-  var sObjects = [];
+
+// Private member variables
+// =============================================================================
+
+/**
+ * Construct a new string transformer.
+ * @type {Transform}
+ */
+var parser = new Transform();
+
+/**
+ * The list of SObjects that are being documented.
+ * @type {Array}
+ */
+var sObjects;
+
+/**
+ * Conversion map from standard object API names to standard object labels.
+ * @type {Object}
+ */
+var standardObjectLabels = {
+  'OpportunityLineItem': 'Opportunity Product',
+  'Pricebook2': 'Pricebook',
+  'Product2': 'Product'
+};
+
+
+// Private methods
+// =============================================================================
+
+/**
+ * Process process all object data into JSON documentation.
+ * @method run
+ */
+var run = function(callback) {
+
+  // Initialize our object list
+  sObjects = [];
+
   var dir = config.data.source;
   console.log('Creating docs for objects in ' + dir);
 
@@ -19,14 +86,15 @@ var run = function() {
     var currentFile;
 
     files.forEach(function(file) {
+
+      console.log('Processing: ' + file);
+
       if(file.indexOf('.object') != -1) {
         c++;
 
-        currentFile = file.replace('.cls', '');
+        currentFile = file.replace('.object', '');
 
         processData(fs.readFileSync(dir + file), file);
-
-        console.dir(sObjects);
       }
     });
     var jsonData = JSON.stringify(sObjects);
@@ -37,69 +105,21 @@ var run = function() {
       }
       else {
         console.log('New object data saved as json.');
+        if(typeof callback === 'function') {
+          callback();
+        }
       }
     });
   });
-}
+};
 
-function JSONToCSVConvertor(data, title, showLabel) {
-  //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
-  var arrData = typeof data != 'object' ? JSON.parse(data) : data;
-
-  arrData = Object.keys(arrData).map(function(k) {
-    return arrData[k]
-  });
-
-  console.log(arrData);
-
-  var CSV = '';
-  //Set Report title in first row or line
-
-  CSV += title + '\r\n\n';
-
-  //This condition will generate the Label/Header
-  if(showLabel) {
-    var row = '';
-
-    //This loop will extract the label from 1st index of on array
-    for(var index in arrData[0]) {
-
-      //Now convert each value to string and comma-seprated
-      row += index + ',';
-    }
-
-    row = row.slice(0, -1);
-
-    //append Label row with line break
-    CSV += row + '\r\n';
-  }
-
-  console.log(arrData.length);
-
-  //1st loop is to extract each row
-  for(var i = 0; i < arrData.length; i++) {
-    var row = '';
-
-    //2nd loop will extract each column and convert it in string comma-seprated
-    for(var index in arrData[i]) {
-      row += '"' + arrData[i][index] + '",';
-    }
-
-    row.slice(0, row.length - 1);
-
-    //add a line break after each row
-    CSV += row + '\r\n';
-  }
-
-  console.log(CSV);
-
-  if(CSV == '') {
-    return 'Invalid data';
-  }
-
-  return CSV;
-}
-
+/**
+ * Process the data from a single object file. This will push the result into
+ * the sObjects array.
+ * @method processData
+ * @param  {Buffer} data The file data buffer from the input stream.
+ * @param  {String} file The name of the file.
+ */
 var processData = function(data, file) {
 
   // Turn the data stream into a string
@@ -115,16 +135,19 @@ var processData = function(data, file) {
 
     var objectData = parseSObjectFields(result, file);
 
-    console.log('---- #data -----');
-    console.dir(objectData);
-    console.log('---- /data -----');
-
     if(objectData.fields.length > 0) {
       sObjects.push(objectData);
     }
   });
 };
 
+/**
+ * Parse the fields from an sObject data file.
+ * @method parseSObjectFields
+ * @param  {Object} data The object data converted from XML.
+ * @param  {String} file The filename of the file being processed.
+ * @return {Object} The sObject data object.
+ */
 var parseSObjectFields = function(data, file) {
   var sObject = {};
 
@@ -139,12 +162,14 @@ var parseSObjectFields = function(data, file) {
   sObject.Label = ((data.CustomObject.label && data.CustomObject.label[0]) || standardObjectLabels[sObject.Name]);
   if(!sObject.Label) {
     sObject.Label = sObject.Name
-        // insert a space between lower & upper
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        // space before last upper in a sequence followed by lower
-        .replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3')
-        // uppercase the first character
-        .replace(/^./, function(str){ return str.toUpperCase(); })
+      // insert a space between lower & upper
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      // space before last upper in a sequence followed by lower
+      .replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3')
+      // uppercase the first character
+      .replace(/^./, function(str) {
+        return str.toUpperCase();
+      });
   }
 
   // Set the description
@@ -157,14 +182,7 @@ var parseSObjectFields = function(data, file) {
 
     var field = data.CustomObject.fields[index];
 
-    console.log('---- #field -----');
-    console.dir(field);
-    console.log(typeof field)
-    console.log('---- /field -----');
-
     if(typeof field === 'object') {
-
-      console.log(field.fullName[0].indexOf('__c'));
 
       // Only operate on custom fields
       if(field.fullName[0].indexOf('__c') !== -1) {
@@ -188,20 +206,10 @@ var parseSObjectFields = function(data, file) {
         sObject.fields.push(fieldData);
       }
     }
-
   }
 
-  console.log('---- #sObject -----');
-  console.dir(sObject);
-  console.log('---- /sObject -----');
-
   return sObject;
-}
+};
 
-var standardObjectLabels = {
-  'OpportunityLineItem': 'Opportunity Product',
-  'Pricebook2': 'Pricebook',
-  'Product2': 'Product'
-}
-
+// Export the run function
 module.exports = run;
