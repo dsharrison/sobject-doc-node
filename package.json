@@ -31,7 +31,7 @@
     "mock-fs": "^4.1.0"
   },
   "dependencies": {
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.0",
     "xml2js": "^0.4.17"
   }
 }
